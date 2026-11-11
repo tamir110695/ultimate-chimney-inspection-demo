@@ -1,0 +1,271 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Ultimate Chimney — Interactive Inspection Demo</title></head><body style="margin:0;padding:28px 12px 70px;background:#e9edf0;font-family:Arial,sans-serif"><div style="max-width:1200px;margin:0 auto 16px;color:#132434"><h1 style="font-size:25px;margin:0 0 6px">Ultimate Chimney Inspection</h1><p style="margin:0;color:#526477;font-size:14px">Demo for Elementor · Swipe or scroll over the model, or use the navigation buttons.</p></div><style>
+/* Ultimate Chimney Inspection V6 — fully scoped to one Elementor HTML widget. */
+#uc-inspection-v6{--navy:#0a1826;--navy2:#101f2d;--champ:#ddbe92;--light:#f8f4ed;--muted:#aebdc8;--line:rgba(224,191,143,.22);font-family:Arial,Helvetica,sans-serif;color:var(--light);max-width:1200px;width:100%;margin:16px auto;border-radius:20px;isolation:isolate;background:var(--navy);border:1px solid #263848;box-sizing:border-box;overflow:hidden;line-height:1.5}
+#uc-inspection-v6 *,#uc-inspection-v6 *::before,#uc-inspection-v6 *::after{box-sizing:border-box}
+#uc-inspection-v6 button,#uc-inspection-v6 a{font:inherit}
+#uc-inspection-v6 button{cursor:pointer;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+#uc-inspection-v6 :focus-visible{outline:2px solid #f0d9b3;outline-offset:3px}
+#uc-inspection-v6 h2,#uc-inspection-v6 h3,#uc-inspection-v6 p{margin:0}
+#uc-inspection-v6 .uc-top{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:17px 26px;border-bottom:1px solid var(--line);background:#0c1c2b}
+#uc-inspection-v6 .uc-top b{color:var(--champ);text-transform:uppercase;letter-spacing:.16em;font-size:9px;font-weight:800}
+#uc-inspection-v6 .uc-top h2{color:#f8f4ed;font-size:21px;line-height:1.15;font-weight:700;letter-spacing:-.025em;margin:4px 0 0}
+#uc-inspection-v6 .uc-top small{font-size:11px;color:var(--muted);letter-spacing:.03em;text-align:right}
+#uc-inspection-v6 .uc-body{display:grid;grid-template-columns:minmax(0,63fr) minmax(290px,37fr);min-height:560px}
+#uc-inspection-v6 .uc-modelarea{position:relative;height:560px;overflow:hidden;background:radial-gradient(ellipse at 43% 40%,#24374a 0%,#122535 43%,#091521 78%);isolation:isolate}
+#uc-inspection-v6 .uc-modelarea::after{content:"";position:absolute;inset:60% 0 0;background:linear-gradient(transparent,rgba(0,0,0,.18));pointer-events:none;z-index:1}
+#uc-inspection-v6 .uc-modelarea::before{content:"";position:absolute;inset:0;pointer-events:none;opacity:.26;background-image:linear-gradient(90deg,rgba(255,255,255,.06) 1px,transparent 1px),linear-gradient(0deg,rgba(255,255,255,.06) 1px,transparent 1px);background-size:52px 52px}
+#uc-inspection-v6 .uc-modelhalo{position:absolute;left:50%;top:49%;transform:translate(-50%,-50%);width:500px;height:500px;border-radius:50%;border:1px solid rgba(221,190,146,.13);pointer-events:none}
+#uc-inspection-v6 .uc-modelhalo::before{content:"";position:absolute;inset:62px;border:1px dashed rgba(221,190,146,.13);border-radius:50%}
+#uc-inspection-v6 .uc-modelcaption{position:absolute;top:22px;left:24px;z-index:4;font-size:10px;letter-spacing:.17em;text-transform:uppercase;color:var(--champ);pointer-events:none}
+#uc-inspection-v6 .uc-modelhint{position:absolute;bottom:18px;left:24px;z-index:4;font-size:11px;color:#c0cdd6;pointer-events:none}
+#uc-inspection-v6 .uc-scene{position:absolute;inset:0;perspective:1600px;-webkit-perspective:1600px;perspective-origin:50% 43%;-webkit-perspective-origin:50% 43%;touch-action:pan-y;cursor:grab;user-select:none;-webkit-user-select:none}
+#uc-inspection-v6.is-started .uc-scene{touch-action:none;cursor:grab}
+#uc-inspection-v6 .uc-scene:active{cursor:grabbing}
+#uc-inspection-v6 .uc-pos,#uc-inspection-v6 .uc-rig,#uc-inspection-v6 .uc-part,#uc-inspection-v6 .uc-solid{position:absolute;top:0;left:0;transform-style:preserve-3d;-webkit-transform-style:preserve-3d}
+#uc-inspection-v6 .uc-pos{top:50%;left:50%;transform:translate3d(0,0,0)}
+#uc-inspection-v6 .uc-face{position:absolute;left:0;top:0;display:block;backface-visibility:hidden;-webkit-backface-visibility:hidden;transform-style:preserve-3d;-webkit-transform-style:preserve-3d;opacity:var(--part-opacity,1)}
+#uc-inspection-v6 .uc-face::after{content:"";position:absolute;inset:0;background:rgba(5,9,13,var(--shadow,.06));pointer-events:none}
+#uc-inspection-v6 .uc-front{--shadow:.06}#uc-inspection-v6 .uc-right{--shadow:.32}#uc-inspection-v6 .uc-left{--shadow:.21}#uc-inspection-v6 .uc-back{--shadow:.47}#uc-inspection-v6 .uc-bottom{--shadow:.5}
+#uc-inspection-v6 .uc-part.is-current .uc-face{outline:1.6px solid rgba(246,200,137,.82);outline-offset:-1px}
+#uc-inspection-v6 .uc-part.is-current .uc-front{box-shadow:0 0 18px rgba(230,171,102,.13)}
+#uc-inspection-v6 .uc-t-brick{background:#8d4e36 url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='76' height='42'%3E%3Crect width='76' height='42' fill='%239C6047'/%3E%3Cpath d='M0 20.5H76M0 41H76M38 0V20M19 21V41M57 21V41' fill='none' stroke='%23D7B8A0' stroke-width='2.3'/%3E%3Cpath d='M1 2h34v5H1ZM40 3h33v3H40ZM2 25h15v4H2ZM21 23h34v4H21Z' fill='%23774432' opacity='.28'/%3E%3Cpath d='M3 9h32v3H3ZM43 12h29v2H43ZM23 34h26v2H23Z' fill='%23EAB58F' opacity='.34'/%3E%3C/svg%3E") center / 76px 42px}
+#uc-inspection-v6 .uc-t-clay{background:repeating-linear-gradient(0deg,#be865e 0 21px,#744830 21px 24px)}
+#uc-inspection-v6 .uc-t-fluetop{background:#121718;box-shadow:inset 0 0 0 8px #c58356,inset 0 0 0 11px #553928}
+#uc-inspection-v6 .uc-t-cap{background:linear-gradient(145deg,#c1cbd0,#819199 43%,#dbe0de 67%,#687b84)}
+#uc-inspection-v6 .uc-t-mesh{background:repeating-linear-gradient(45deg,#9aadb5 0 1.4px,transparent 1.4px 8px),repeating-linear-gradient(-45deg,#b6c4c9 0 1.4px,transparent 1.4px 8px),#15232c}
+#uc-inspection-v6 .uc-t-crown{background:linear-gradient(150deg,#d4d2c9,#a8aaa4 62%,#7a8385)}
+#uc-inspection-v6 .uc-t-flash{background:linear-gradient(140deg,#c3d0d4,#697b87 65%,#405562)}
+#uc-inspection-v6 .uc-t-smoke{background:linear-gradient(130deg,#8d8d88,#474b4b)}
+#uc-inspection-v6 .uc-t-stone{background:linear-gradient(120deg,#a5a19a,#505457)}
+#uc-inspection-v6 .uc-roof{position:absolute;top:0;left:0;width:470px;height:355px;transform:translate(-50%,-50%) translate3d(0,-14px,0) rotateX(80deg);background:repeating-linear-gradient(0deg,#4a5660 0 14px,#26313d 14px 17px);-webkit-mask-image:radial-gradient(closest-side,#000 20%,transparent 70%);mask-image:radial-gradient(closest-side,#000 20%,transparent 70%);pointer-events:none;opacity:.63}
+#uc-inspection-v6 .uc-fireopen{position:absolute;bottom:0;left:19%;width:62%;height:73%;border-radius:44% 44% 0 0/37% 37% 0 0;border:5px solid #492b23;border-bottom:0;overflow:hidden;background:radial-gradient(ellipse at 50% 100%,#953e17,#2c140d 70%);box-shadow:inset 0 0 16px rgba(0,0,0,.7)}
+#uc-inspection-v6 .uc-fireopen svg{position:absolute;bottom:0;left:0;width:100%;height:100%}
+#uc-inspection-v6 .uc-partlabel{position:absolute;left:0;top:0;white-space:nowrap;color:#f5d19f;font:bold 14px/1.2 ui-monospace,Menlo,monospace;text-shadow:0 2px 10px rgba(0,0,0,.7);opacity:0}
+#uc-inspection-v6 .uc-part.is-current .uc-partlabel{opacity:1}
+#uc-inspection-v6 .uc-partlabel::before{content:"";display:inline-block;vertical-align:middle;margin-right:8px;width:24px;height:1px;background:#e1bd8c}
+#uc-inspection-v6 .uc-start{position:absolute;z-index:8;left:50%;top:50%;transform:translate(-50%,-50%);width:156px;min-height:126px;border-radius:18px;border:1px solid rgba(221,190,146,.55);color:#fef9f3;background:rgba(10,25,38,.89);box-shadow:0 17px 50px rgba(0,0,0,.48);display:grid;justify-items:center;align-content:center;gap:9px;text-transform:uppercase;letter-spacing:.08em;font-size:11px;font-weight:bold;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
+#uc-inspection-v6 .uc-start .uc-playdisc{width:49px;height:49px;border-radius:50%;background:var(--champ);color:#0b1a28;display:grid;place-items:center;font-size:21px;letter-spacing:0;padding-left:2px}
+#uc-inspection-v6.is-started .uc-start{display:none}
+#uc-inspection-v6 .uc-panel{display:flex;flex-direction:column;justify-content:space-between;gap:24px;padding:29px 25px 22px;background:linear-gradient(160deg,#102333,#0a1a29);min-width:0;border-left:1px solid var(--line)}
+#uc-inspection-v6 .uc-panelhead{display:flex;justify-content:space-between;align-items:center;gap:8px}
+#uc-inspection-v6 .uc-eyebrow{font-size:10px;text-transform:uppercase;letter-spacing:.15em;font-weight:800;color:var(--champ)}
+#uc-inspection-v6 .uc-count{font-size:11px;letter-spacing:.11em;color:#aebdc6;white-space:nowrap}
+#uc-inspection-v6 .uc-cards{position:relative;flex:1;min-height:286px}
+#uc-inspection-v6 .uc-card{display:none;animation:uc-card-in .25s ease both}
+#uc-inspection-v6 .uc-card.active{display:block}
+#uc-inspection-v6 .uc-cardtop{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:0 0 18px}
+#uc-inspection-v6 .uc-card h3{color:#fffaf2;font-size:clamp(26px,2.6vw,39px);font-weight:650;letter-spacing:-.032em;line-height:1.13;margin:0 0 15px}
+#uc-inspection-v6 .uc-card p{font-size:14px;line-height:1.75;color:#bdcbd4;margin:0 0 19px;max-width:36ch}
+#uc-inspection-v6 .uc-inspect{display:flex;align-items:flex-start;gap:10px;color:#d2dbe1;font-size:12px;line-height:1.6;border-top:1px solid rgba(224,191,143,.19);padding-top:16px;margin-bottom:20px}
+#uc-inspection-v6 .uc-inspect>span:first-child{font-size:20px;line-height:1;color:var(--champ)}
+#uc-inspection-v6 .uc-inspect b{display:block;font-size:9px;letter-spacing:.15em;color:var(--champ);margin-bottom:5px}
+#uc-inspection-v6 .uc-service{display:flex;align-items:center;justify-content:space-between;gap:10px;color:#1a242a!important;text-decoration:none!important;background:var(--champ);padding:12px 15px;border-radius:9px;font-size:12px!important;font-weight:800!important;line-height:1.35;min-height:44px;max-width:100%}
+#uc-inspection-v6 .uc-service:hover{background:#f3d6a8}
+#uc-inspection-v6 .uc-controls{border-top:1px solid var(--line);padding-top:18px;display:flex;flex-direction:column;gap:13px}
+#uc-inspection-v6 .uc-navbuttons{display:flex;gap:9px}
+#uc-inspection-v6 .uc-navbuttons button{background:#152c3c;color:#f6ece1;border:1px solid rgba(213,186,149,.28);border-radius:9px;padding:10px 13px;font-size:12px;font-weight:700;min-height:42px}
+#uc-inspection-v6 .uc-navbuttons button.uc-next{background:#315d6c;border-color:#648e98;margin-left:auto}
+#uc-inspection-v6 .uc-navbuttons button:disabled{opacity:.35;cursor:default}
+#uc-inspection-v6 .uc-dots{display:flex;gap:5px;width:100%}
+#uc-inspection-v6 .uc-dots button{height:5px;flex:1;border:0;border-radius:5px;background:#3d5866;padding:0;min-width:4px;cursor:pointer}
+#uc-inspection-v6 .uc-dots button.done,#uc-inspection-v6 .uc-dots button.on{background:#dfbd8e}
+#uc-inspection-v6 .uc-controlhint{color:#90a7b6;font-size:10px;letter-spacing:.02em}
+#uc-inspection-v6 .uc-service-nav{display:flex;flex-wrap:wrap;gap:8px 14px;padding:15px 24px 18px;border-top:1px solid var(--line);align-items:center;background:#0c1b29}
+#uc-inspection-v6 .uc-service-nav strong{width:100%;font-size:10px;color:var(--champ);text-transform:uppercase;letter-spacing:.14em}
+#uc-inspection-v6 .uc-service-nav a{font-size:11px;color:#c1d0d9;text-decoration:none;line-height:1.4;border-bottom:1px solid rgba(200,220,233,.2)}
+#uc-inspection-v6 .uc-service-nav a:hover{color:#fff;border-color:#fff}
+@keyframes uc-card-in{from{opacity:.45;transform:translateY(8px)}to{opacity:1;transform:none}}
+@media (max-width:820px){
+ #uc-inspection-v6{border-radius:14px;margin:10px auto}
+ #uc-inspection-v6 .uc-top{padding:12px 16px}
+ #uc-inspection-v6 .uc-top small{font-size:10px}
+ #uc-inspection-v6 .uc-body{display:flex;flex-direction:column}
+ #uc-inspection-v6 .uc-modelarea{height:355px;flex:none}
+ #uc-inspection-v6 .uc-panel{border-left:0;border-top:1px solid var(--line);padding:17px 17px 16px;gap:13px}
+ #uc-inspection-v6 .uc-cards{min-height:0}
+ #uc-inspection-v6 .uc-cardtop{margin-bottom:8px}
+ #uc-inspection-v6 .uc-card h3{font-size:27px;margin-bottom:8px}
+ #uc-inspection-v6 .uc-card p{font-size:12.5px;line-height:1.6;margin-bottom:10px;max-width:65ch}
+ #uc-inspection-v6 .uc-inspect{font-size:11px;padding-top:9px;margin-bottom:10px}
+ #uc-inspection-v6 .uc-inspect b{margin-bottom:2px}
+ #uc-inspection-v6 .uc-service{padding:10px 13px}
+ #uc-inspection-v6 .uc-controls{padding-top:13px;gap:10px}
+ #uc-inspection-v6 .uc-navbuttons button{padding:8px 11px;min-height:42px}
+ #uc-inspection-v6 .uc-service-nav{padding:12px 17px 16px;gap:6px 11px}
+ #uc-inspection-v6 .uc-service-nav a{font-size:10.5px}
+ #uc-inspection-v6 .uc-modelcaption{top:12px;left:15px}
+ #uc-inspection-v6 .uc-modelhint{left:15px;bottom:9px}
+ #uc-inspection-v6 .uc-partlabel{font-size:12px}
+}
+@media (max-width:360px){#uc-inspection-v6 .uc-modelarea{height:310px}#uc-inspection-v6 .uc-top{padding:11px}#uc-inspection-v6 .uc-top b{font-size:8px}#uc-inspection-v6 .uc-top h2{font-size:16px}#uc-inspection-v6 .uc-top small{font-size:9px}#uc-inspection-v6 .uc-card h3{font-size:25px}}
+@media (prefers-reduced-motion:reduce){#uc-inspection-v6 .uc-card{animation:none}}
+</style>
+<section id="uc-inspection-v6" lang="en" aria-label="Ultimate Chimney interactive chimney anatomy and inspection">
+  <div class="uc-top"><div><b>ULTIMATE CHIMNEY SERVICES</b><h2>Explore Your Chimney</h2></div><small>INTERACTIVE CHIMNEY ANATOMY · 8 PARTS</small></div>
+  <div class="uc-body">
+    <div class="uc-modelarea">
+      <div class="uc-modelhalo" aria-hidden="true"></div>
+      <div class="uc-modelcaption">3D COMPONENT INSPECTION <span class="uc-modelstep">00 / 08</span></div>
+      <div class="uc-scene" role="group" tabindex="0" aria-label="Interactive 3D chimney model. Swipe up or down to inspect parts. Swipe sideways to rotate.">
+        <div class="uc-pos" aria-hidden="true"><div class="uc-rig"></div></div>
+      </div>
+      <button class="uc-start" type="button" aria-label="Start the interactive chimney inspection"><span class="uc-playdisc" aria-hidden="true">▶</span><span>Start inspection</span></button>
+      <div class="uc-modelhint">Scroll / swipe ↕ to inspect · drag ↔ to rotate</div>
+    </div>
+    <div class="uc-panel">
+      <div class="uc-cards"><article class="uc-card active" data-card="0" aria-label="Inside your chimney">
+    <div class="uc-cardtop"><span class="uc-eyebrow">AN INTERACTIVE INSPECTION</span><span class="uc-count">00 / 08</span></div>
+    <h3>Inside your chimney</h3>
+    <p>Turn, separate and inspect eight parts of a masonry chimney—from the cap all the way to the hearth.</p>
+    <div class="uc-inspect"><span aria-hidden="true">◎</span><span><b>HOW IT WORKS</b>Select Start Inspection, then scroll or swipe over the chimney to explore.</span></div>
+    <a class="uc-service" href="https://ultimatechimneycleaning.com/our-services/chimney-inspection/" rel="noopener" target="_blank">Professional chimney inspections <span aria-hidden="true">↗</span></a>
+  </article>
+<article class="uc-card" data-card="1" aria-label="Chimney Cap">
+    <div class="uc-cardtop"><span class="uc-eyebrow">THE FIRST LINE OF DEFENSE</span><span class="uc-count">01 / 08</span></div>
+    <h3>Chimney Cap</h3>
+    <p>The cap helps stop rain, snow, animals and debris from entering the flue.</p>
+    <div class="uc-inspect"><span aria-hidden="true">◎</span><span><b>WHAT WE INSPECT</b>Loose brackets, corroded mesh, missing or damaged covers.</span></div>
+    <a class="uc-service" href="https://ultimatechimneycleaning.com/our-services/chimney-cap-replacement/" rel="noopener" target="_blank">Chimney cap replacement <span aria-hidden="true">↗</span></a>
+  </article>
+<article class="uc-card" data-card="2" aria-label="Chimney Crown">
+    <div class="uc-cardtop"><span class="uc-eyebrow">PROTECTING THE BRICKWORK</span><span class="uc-count">02 / 08</span></div>
+    <h3>Chimney Crown</h3>
+    <p>The concrete crown sheds water away from the chimney and protects the masonry beneath.</p>
+    <div class="uc-inspect"><span aria-hidden="true">◎</span><span><b>WHAT WE INSPECT</b>Hairline cracks, deteriorated concrete, openings around the flue.</span></div>
+    <a class="uc-service" href="https://ultimatechimneycleaning.com/our-services/chimney-crown-repair/" rel="noopener" target="_blank">Chimney crown repair <span aria-hidden="true">↗</span></a>
+  </article>
+<article class="uc-card" data-card="3" aria-label="Flue Liner">
+    <div class="uc-cardtop"><span class="uc-eyebrow">INSIDE THE CHIMNEY</span><span class="uc-count">03 / 08</span></div>
+    <h3>Flue Liner</h3>
+    <p>The liner carries smoke and combustion gases out while separating heat from surrounding masonry.</p>
+    <div class="uc-inspect"><span aria-hidden="true">◎</span><span><b>WHAT WE INSPECT</b>Cracked tiles, gaps, creosote buildup and obstructions.</span></div>
+    <a class="uc-service" href="https://ultimatechimneycleaning.com/our-services/chimney-liner-installation/" rel="noopener" target="_blank">Chimney liner installation <span aria-hidden="true">↗</span></a>
+  </article>
+<article class="uc-card" data-card="4" aria-label="Masonry Stack">
+    <div class="uc-cardtop"><span class="uc-eyebrow">THE CHIMNEY STRUCTURE</span><span class="uc-count">04 / 08</span></div>
+    <h3>Masonry Stack</h3>
+    <p>Brick and mortar form the chimney shell. Damaged joints can let water inside.</p>
+    <div class="uc-inspect"><span aria-hidden="true">◎</span><span><b>WHAT WE INSPECT</b>Loose bricks, spalling surfaces, failing mortar and movement.</span></div>
+    <a class="uc-service" href="https://ultimatechimneycleaning.com/our-services/masonry-repair/" rel="noopener" target="_blank">Masonry repair <span aria-hidden="true">↗</span></a>
+  </article>
+<article class="uc-card" data-card="5" aria-label="Roof Flashing">
+    <div class="uc-cardtop"><span class="uc-eyebrow">THE ROOF CONNECTION</span><span class="uc-count">05 / 08</span></div>
+    <h3>Roof Flashing</h3>
+    <p>Metal flashing helps form a watertight junction between the roof and chimney.</p>
+    <div class="uc-inspect"><span aria-hidden="true">◎</span><span><b>WHAT WE INSPECT</b>Lifted edges, rust, failed sealant and water stains.</span></div>
+    <a class="uc-service" href="https://ultimatechimneycleaning.com/our-services/chimney-flashing-repair/" rel="noopener" target="_blank">Chimney flashing repair <span aria-hidden="true">↗</span></a>
+  </article>
+<article class="uc-card" data-card="6" aria-label="Smoke Chamber">
+    <div class="uc-cardtop"><span class="uc-eyebrow">THE SMOKE TRANSITION</span><span class="uc-count">06 / 08</span></div>
+    <h3>Smoke Chamber</h3>
+    <p>This tapered chamber guides smoke from the firebox into the narrower flue.</p>
+    <div class="uc-inspect"><span aria-hidden="true">◎</span><span><b>WHAT WE INSPECT</b>Rough surfaces, gaps, cracks and creosote accumulation.</span></div>
+    <a class="uc-service" href="https://ultimatechimneycleaning.com/our-services/chimney-repair/" rel="noopener" target="_blank">Chimney repair <span aria-hidden="true">↗</span></a>
+  </article>
+<article class="uc-card" data-card="7" aria-label="Firebox">
+    <div class="uc-cardtop"><span class="uc-eyebrow">WHERE THE FIRE BURNS</span><span class="uc-count">07 / 08</span></div>
+    <h3>Firebox</h3>
+    <p>Firebrick and refractory mortar contain the fire and help protect surrounding materials.</p>
+    <div class="uc-inspect"><span aria-hidden="true">◎</span><span><b>WHAT WE INSPECT</b>Cracked firebrick, missing mortar and damaged joints.</span></div>
+    <a class="uc-service" href="https://ultimatechimneycleaning.com/our-services/chimney-repair/" rel="noopener" target="_blank">Chimney repair <span aria-hidden="true">↗</span></a>
+  </article>
+<article class="uc-card" data-card="8" aria-label="Hearth">
+    <div class="uc-cardtop"><span class="uc-eyebrow">ROOM-SIDE PROTECTION</span><span class="uc-count">08 / 08</span></div>
+    <h3>Hearth</h3>
+    <p>The noncombustible hearth helps shield the room from heat and stray embers.</p>
+    <div class="uc-inspect"><span aria-hidden="true">◎</span><span><b>WHAT WE INSPECT</b>Cracks, loose sections and deterioration.</span></div>
+    <a class="uc-service" href="https://ultimatechimneycleaning.com/our-services/chimney-inspection/" rel="noopener" target="_blank">Chimney inspection <span aria-hidden="true">↗</span></a>
+  </article>
+<article class="uc-card" data-card="9" aria-label="Inspection complete">
+    <div class="uc-cardtop"><span class="uc-eyebrow">EVERY PART MATTERS</span><span class="uc-count">09 / 08</span></div>
+    <h3>Inspection complete</h3>
+    <p>Your chimney works as one connected system. Discover the services that keep each component in good condition.</p>
+    <div class="uc-inspect"><span aria-hidden="true">◎</span><span><b>NEXT STEP</b>A real inspection must be performed on your specific chimney by a qualified professional.</span></div>
+    <a class="uc-service" href="https://ultimatechimneycleaning.com/our-services/chimney-inspection/" rel="noopener" target="_blank">Book a chimney inspection <span aria-hidden="true">↗</span></a>
+  </article></div>
+      <div class="uc-controls">
+        <div class="uc-dots" aria-label="Select chimney component"><button type="button" aria-label="Inspect Chimney Cap" data-go="1"></button><button type="button" aria-label="Inspect Chimney Crown" data-go="2"></button><button type="button" aria-label="Inspect Flue Liner" data-go="3"></button><button type="button" aria-label="Inspect Masonry Stack" data-go="4"></button><button type="button" aria-label="Inspect Roof Flashing" data-go="5"></button><button type="button" aria-label="Inspect Smoke Chamber" data-go="6"></button><button type="button" aria-label="Inspect Firebox" data-go="7"></button><button type="button" aria-label="Inspect Hearth" data-go="8"></button></div>
+        <div class="uc-navbuttons"><button class="uc-prev" type="button" aria-label="Previous inspection step">← Previous</button><button class="uc-rot" type="button" aria-label="Rotate chimney 30 degrees">↻ Rotate</button><button class="uc-reset" type="button" aria-label="Restart inspection">Restart</button><button class="uc-next" type="button" aria-label="Next inspection step">Next →</button></div>
+        <div class="uc-controlhint" aria-live="polite">Select Start Inspection to begin.</div>
+      </div>
+    </div>
+  </div>
+  <nav class="uc-service-nav" aria-label="Explore chimney repair and inspection services"><strong>Explore the services</strong><a href="https://ultimatechimneycleaning.com/our-services/chimney-cap-replacement/" target="_blank" rel="noopener">Chimney Cap</a><a href="https://ultimatechimneycleaning.com/our-services/chimney-crown-repair/" target="_blank" rel="noopener">Chimney Crown</a><a href="https://ultimatechimneycleaning.com/our-services/chimney-liner-installation/" target="_blank" rel="noopener">Flue Liner</a><a href="https://ultimatechimneycleaning.com/our-services/masonry-repair/" target="_blank" rel="noopener">Masonry Stack</a><a href="https://ultimatechimneycleaning.com/our-services/chimney-flashing-repair/" target="_blank" rel="noopener">Roof Flashing</a><a href="https://ultimatechimneycleaning.com/our-services/chimney-repair/" target="_blank" rel="noopener">Smoke Chamber</a><a href="https://ultimatechimneycleaning.com/our-services/chimney-repair/" target="_blank" rel="noopener">Firebox</a><a href="https://ultimatechimneycleaning.com/our-services/chimney-inspection/" target="_blank" rel="noopener">Hearth</a></nav>
+</section>
+<script>
+(function(){
+'use strict';
+var root=document.getElementById('uc-inspection-v6');if(!root||root.dataset.initialized)return;root.dataset.initialized='yes';
+var $=function(s){return root.querySelector(s)},$$=function(s){return Array.from(root.querySelectorAll(s))};
+var model=$('.uc-modelarea'),scene=$('.uc-scene'),pos=$('.uc-pos'),rig=$('.uc-rig');
+var cards=$$('.uc-card'),dots=$$('.uc-dots button'),reduced=!!(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+var P=[
+ {y:19,ey:-150,b:[{t:'cap',w:112,h:7,d:112,y:-16},{t:'mesh',w:80,h:32,d:80,y:4,open:1}]},
+ {y:59,ey:-98,b:[{t:'crown',w:176,h:19,d:176,y:0}]},
+ {y:219,ey:-40,ex:-185,b:[{t:'clay',w:56,h:360,d:56,y:0,top:'fluetop'}]},
+ {y:234,ey:0,b:[{t:'brick',w:155,h:330,d:155,y:0,open:1}]},
+ {y:291,ey:27,b:[{t:'flash',w:173,h:34,d:173,y:0,open:1}]},
+ {y:430,ey:66,b:[{t:'smoke',fr:1,tw:92,bw:208,td:92,bd:160,h:62,y:0}]},
+ {y:520,ey:110,b:[{t:'brick',w:235,h:120,d:175,y:0,fire:1}]},
+ {y:587,ey:155,b:[{t:'stone',w:325,h:15,d:245,y:0,z:34}]}
+];
+var fire='<svg viewBox="0 0 140 85" preserveAspectRatio="none" aria-hidden="true"><path d="M15 81h110v4H15z" fill="#392016"/><path d="M34 80C17 57 43 39 56 21c-3 20 8 26 13 37 8-10 13-24 14-44 17 25 30 43 16 66z" fill="#f37234"/><path d="M48 80c-11-20 10-32 17-49-1 14 7 18 9 28 7-8 9-18 10-26 12 21 16 31 7 47z" fill="#ffd176"/><path d="M61 80c-7-13 4-21 9-30 0 10 6 12 6 19 4-3 5-8 6-11 6 14 7 17 2 22z" fill="#fff0c7"/><path d="M27 81h86" stroke="#3d271d" stroke-width="5"/></svg>';
+function make(tag,cls){var n=document.createElement(tag);n.className=cls;return n}
+function face(type,w,h,tf,side){var f=make('i','uc-face uc-'+side+' uc-t-'+type);f.style.width=w+'px';f.style.height=h+'px';f.style.transform='translate(-50%,-50%) '+tf;return f}
+function solid(b){var g=make('div','uc-solid');if(b.fr){
+ var ax=(b.bw-b.tw)/2,az=(b.bd-b.td)/2,h=b.h,lf=Math.hypot(h,az),af=Math.atan2(az,h)*180/Math.PI,ls=Math.hypot(h,ax),as=Math.atan2(ax,h)*180/Math.PI;
+ var cf='polygon('+(ax/b.bw*100)+'% 0,'+(100-ax/b.bw*100)+'% 0,100% 100%,0 100%)',cs='polygon('+(az/b.bd*100)+'% 0,'+(100-az/b.bd*100)+'% 0,100% 100%,0 100%)';
+ [['front','',(b.bd+b.td)/4,af,b.bw,lf,cf],['back','rotateY(180deg) ',(b.bd+b.td)/4,af,b.bw,lf,cf],['right','rotateY(90deg) ',(b.bw+b.tw)/4,as,b.bd,ls,cs],['left','rotateY(-90deg) ',(b.bw+b.tw)/4,as,b.bd,ls,cs]].forEach(function(a){var f=face(b.t,a[4],a[5],a[1]+'translateZ('+a[2]+'px) rotateX('+a[3]+'deg)',a[0]);f.style.clipPath=a[6];f.style.webkitClipPath=a[6];g.appendChild(f)});
+ g.appendChild(face(b.t,b.tw,b.td,'rotateX(90deg) translateZ('+(h/2)+'px)','top'));
+ }else{var fr=face(b.t,b.w,b.h,'translateZ('+(b.d/2)+'px)','front');g.appendChild(fr);g.appendChild(face(b.t,b.w,b.h,'rotateY(180deg) translateZ('+(b.d/2)+'px)','back'));g.appendChild(face(b.t,b.d,b.h,'rotateY(90deg) translateZ('+(b.w/2)+'px)','right'));g.appendChild(face(b.t,b.d,b.h,'rotateY(-90deg) translateZ('+(b.w/2)+'px)','left'));
+ if(!b.open){g.appendChild(face(b.top||b.t,b.w,b.d,'rotateX(90deg) translateZ('+(b.h/2)+'px)','top'));g.appendChild(face(b.t,b.w,b.d,'rotateX(-90deg) translateZ('+(b.h/2)+'px)','bottom'))}
+ if(b.fire){var open=make('span','uc-fireopen');open.innerHTML=fire;fr.appendChild(open)}
+ }g.style.transform='translate3d(0,'+(b.y||0)+'px,'+(b.z||0)+'px)';return g}
+var roof=make('i','uc-roof');rig.appendChild(roof);
+P.forEach(function(p,i){var g=make('div','uc-part');p.b.forEach(function(b){g.appendChild(solid(b))});var label=make('span','uc-partlabel');label.textContent=String(i+1).padStart(2,'0')+' · '+['CAP','CROWN','FLUE LINER','MASONRY','FLASHING','SMOKE CHAMBER','FIREBOX','HEARTH'][i];label.style.transform='translate3d('+(((p.b[0].w||p.b[0].bw)/2)+14)+'px,-8px,105px)';g.appendChild(label);rig.appendChild(g);p.el=g;});
+var started=false,target=0,value=0,angle=-30,raf=0,cardIndex=-1,wheelCarry=0,touch=null,mouse=null;
+function clip(a,b,x){return Math.max(a,Math.min(b,x))}
+function smooth(a,b,t){t=clip(0,1,(t-a)/(b-a));return t*t*(3-2*t)}
+function paintCard(i){if(i===cardIndex)return;cardIndex=i;cards.forEach(function(c,j){var on=j===i;c.classList.toggle('active',on);c.setAttribute('aria-hidden',on?'false':'true')});dots.forEach(function(d,j){d.classList.toggle('on',j+1===i);d.classList.toggle('done',j+1<i);if(j+1===i)d.setAttribute('aria-current','step');else d.removeAttribute('aria-current')});$('.uc-modelstep').textContent=String(clip(0,8,i)).padStart(2,'0')+' / 08';$('.uc-prev').disabled=i===0;$('.uc-next').disabled=i===9;$('.uc-controlhint').textContent=i===0?'Select Start Inspection to begin.':i===9?'Inspection complete — restart or explore a service.':'Scroll or swipe on the chimney to inspect. Drag horizontally to rotate.'}
+function render(){raf=0;value=reduced?target:value+(target-value)*.20;if(Math.abs(target-value)<.005)value=target;
+ var w=model.clientWidth||700,h=model.clientHeight||560,mobile=w<640,v=value,stage=clip(0,9,Math.round(v)),focused=stage>0&&stage<=8,idx=clip(0,7,stage-1);
+ var explode=smooth(.12,1.05,v)*(1-smooth(8.3,9,v));
+ var p=focused?P[idx]:null,localY=p?p.y-300+p.ey*explode:0,localX=p?(p.ex||0)*explode:0,scale,ty,tx;
+ if(mobile){scale=focused ? .56 : .44;scale=Math.min(scale,(w-28)/(focused?390:490));if(!focused)scale=Math.min(scale,(h-25)/660);tx=-(localX*scale)*.86;ty=-localY*scale*.88;
+ }else{scale=Math.min(.70,h/870,(w-45)/640);tx=-(localX*scale)*.38;ty=-localY*scale*.18;}
+ pos.style.transform='translate3d('+tx.toFixed(2)+'px,'+ty.toFixed(2)+'px,0) scale3d('+scale.toFixed(4)+','+scale.toFixed(4)+','+scale.toFixed(4)+')';
+ rig.style.transform='rotateX(-16deg) rotateY('+angle.toFixed(2)+'deg)';
+ P.forEach(function(part,j){var y=part.y-300+part.ey*explode,x=(part.ex||0)*explode;part.el.style.transform='translate3d('+x.toFixed(2)+'px,'+y.toFixed(2)+'px,0)';var alpha=1;
+ if(focused){if(j===3&&idx===2)alpha=.16;else if(j!==idx)alpha=.65;}
+ part.el.style.setProperty('--part-opacity',alpha.toFixed(2));part.el.classList.toggle('is-current',focused&&j===idx);});
+ roof.style.opacity=String((.62*(1-smooth(0.8,2.5,v))).toFixed(2));
+ paintCard(clip(0,9,Math.round(target)));
+ if(value!==target)queue();
+}
+function queue(){if(!raf)raf=requestAnimationFrame(render)}
+function go(n){target=clip(0,9,n);if(!started&&target>0){started=true;root.classList.add('is-started')};queue()}
+$('.uc-start').addEventListener('click',function(){go(1)});
+$('.uc-prev').addEventListener('click',function(){go(Math.round(target)-1)});
+$('.uc-next').addEventListener('click',function(){go(Math.round(target)+1)});
+$('.uc-reset').addEventListener('click',function(){started=false;root.classList.remove('is-started');go(0)});
+$('.uc-rot').addEventListener('click',function(){angle+=35;queue()});
+dots.forEach(function(btn){btn.addEventListener('click',function(){go(+btn.dataset.go)})});
+/* Wheel interaction is local to the 3D scene and releases the page at the first/last step. */
+scene.addEventListener('wheel',function(ev){if(!started)return;var d=ev.deltaY*(ev.deltaMode===1?17:ev.deltaMode===2?model.clientHeight:1);if((d<0&&target<=0)||(d>0&&target>=9))return;
+ if(ev.cancelable)ev.preventDefault();wheelCarry+=d;var shift=wheelCarry/170;wheelCarry=0;target=clip(0,9,target+shift);queue();},{passive:false});
+/* Native Touch Events support Safari even when pointer gestures are not dispatched. */
+scene.addEventListener('touchstart',function(ev){if(!started||ev.touches.length!==1)return;var t=ev.touches[0];touch={x:t.clientX,y:t.clientY,px:t.clientX,origin:target,baseAngle:angle,axis:null};},{passive:true});
+scene.addEventListener('touchmove',function(ev){if(!touch||ev.touches.length!==1)return;var t=ev.touches[0],dx=t.clientX-touch.x,dy=t.clientY-touch.y;
+ if(!touch.axis&&Math.max(Math.abs(dx),Math.abs(dy))>7)touch.axis=Math.abs(dx)>Math.abs(dy)*1.15?'x':'y';if(!touch.axis)return;
+ if(ev.cancelable)ev.preventDefault();if(touch.axis==='x'){angle=touch.baseAngle+dx*.46;queue()}else{target=clip(0,9,touch.origin-dy/150);queue()};},{passive:false});
+scene.addEventListener('touchend',function(){if(touch){if(touch.axis==='y')go(Math.round(target));touch=null;}},{passive:true});
+scene.addEventListener('touchcancel',function(){touch=null;},{passive:true});
+/* Mouse drag rotation */
+scene.addEventListener('pointerdown',function(ev){if(!started||ev.pointerType==='touch'||ev.button!==0)return;mouse={x:ev.clientX,angle:angle};try{scene.setPointerCapture(ev.pointerId)}catch(e){} });
+scene.addEventListener('pointermove',function(ev){if(!mouse)return;angle=mouse.angle+(ev.clientX-mouse.x)*.5;queue()});
+['pointerup','pointercancel','lostpointercapture'].forEach(function(s){scene.addEventListener(s,function(){mouse=null})});
+scene.addEventListener('keydown',function(e){if(e.key==='ArrowDown'||e.key==='ArrowRight'){e.preventDefault();go(Math.round(target)+1)}else if(e.key==='ArrowUp'||e.key==='ArrowLeft'){e.preventDefault();go(Math.round(target)-1)}else if(e.key==='Home'){e.preventDefault();go(0)}else if(e.key==='End'){e.preventDefault();go(9)}});
+window.addEventListener('resize',queue,{passive:true});if(window.ResizeObserver){new ResizeObserver(queue).observe(model)}
+paintCard(0);queue();
+})();
+</script><p style="margin:26px auto;max-width:1150px;color:#5e6e79;font-size:13px">Independent preview. The animation uses one scoped HTML widget and no external libraries.</p></body></html>
